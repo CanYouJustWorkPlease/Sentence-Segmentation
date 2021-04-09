@@ -10,23 +10,6 @@ chrome.runtime.onInstalled.addListener(function() {
 
 });
 
-
-
-function onClickHandler(info, tab) {
-    if (info.menuItemId == "segmentSection") {
-        chrome.tabs.executeScript(tab.id, {
-            code: "segmentSection('section');"
-        });
-    } else {
-        chrome.tabs.executeScript(tab.id, {
-            code: "segmentSection('body');"
-        });
-    }
-};
-
-chrome.contextMenus.onClicked.addListener(onClickHandler);
-
-
 var mainSwitch = "";
 var autoSegmentSwitch = "";
 var paraBorder = "";
@@ -36,14 +19,6 @@ var getStatus = function(){
     chrome.storage.local.get(null, function(resp){
         console.log(resp.switch);
         mainSwitch = resp.switch;
-        //if (mainSwitch == "On"){
-            chrome.contextMenus.create({"title": "Segment Complete Page", "id": "segmentPage"});
-            //chrome.contextMenus.create({"title": "Segment This Section", "id": "segmentSection"});
-        //}
-        //else {
-        //    chrome.contextMenus.removeAll();
-        //}
-		//
     });
 }
 

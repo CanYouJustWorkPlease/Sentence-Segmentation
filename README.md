@@ -11,7 +11,7 @@ Sentence structure can also become clearer.
 
 If you’re skimming, you can abandon a sentence, and quickly find another sentence.
 
-You can activate the segmentation by clicking on the top-right icon, or right-clicking (context menu).
+You can activate the segmentation by clicking on the top-right icon.
 
 Additional notes:
 
