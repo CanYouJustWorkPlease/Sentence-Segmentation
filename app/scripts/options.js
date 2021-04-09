@@ -1,18 +1,14 @@
 $(document).ready(function(){
 
-    chrome.runtime.sendMessage({method: "getDoubleSpace"}, function(response) {
-        if (response.message == "On"){
-            $("#doubleSpace").prop('checked', true);
-        }
-        else if (response.message == "Off"){
-            $("#doubleSpace").prop('checked', false);
-        }
+    chrome.runtime.sendMessage({method: "getWhichSeparator"}, function(response) {
+        const correctCheckbox = document.querySelector(`[id="${response.message || 'newLine'}"]`);
+        correctCheckbox.checked = true;
     });
 
 
-    $("#doubleSpace").change(function(){
-        var current = $(this).prop('checked');
-        chrome.runtime.sendMessage({method: "doubleSpace", value: current}, function(response) {
-        });
+    $('[name="whichSeparator"]').change(function(){
+        if ($(this).prop('checked')) {
+            chrome.runtime.sendMessage({method: "setWhichSeparator", value: this.value}, function(response) {})
+        }
     });
 })

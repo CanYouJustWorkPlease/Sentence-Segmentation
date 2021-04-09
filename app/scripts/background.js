@@ -2,50 +2,45 @@
 
 chrome.runtime.onInstalled.addListener(function() {
     console.log("Installed");
-    chrome.storage.local.set({'doubleSpace': "Off"});
+    chrome.storage.local.get('whichSeparator', resp => {
+        // only if nothing's in storage set this separator
+        if (Object.keys(resp).length === 0) {
+            chrome.storage.local.set({'whichSeparator': 'newLine'});
+        }
+    });
 
 });
 
-var doubleSpace = "";
+var whichSeparator = "";
 
-var getDoubleSpace = function(){
+var getWhichSeparator = function(){
     chrome.storage.local.get(null, function(resp){
-        console.log(resp.doubleSpace);
-        doubleSpace = resp.doubleSpace;
+        console.log(resp.whichSeparator);
+        whichSeparator = resp.whichSeparator;
     });
 };
 
 setTimeout(function(){
-    getDoubleSpace();
+    getWhichSeparator();
 },500);
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.method == "doubleSpace") {
-            if (request.value == true){
-                chrome.storage.local.set({'doubleSpace': "On"});
-                sendResponse({message: "doubleSpace turned On"});
-                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-                });
-                getDoubleSpace();
-            }
-            else{
-                chrome.storage.local.set({'doubleSpace': "Off"});
-                sendResponse({message: "doubleSpace turned Off"});
-                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-                });
-                getDoubleSpace();
-            }
+        if (request.method == "setWhichSeparator") {
+            chrome.storage.local.set({'whichSeparator': request.value});
+            sendResponse({message: "whichSeparator changed to:" + request.value});
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+            });
+            getWhichSeparator();
         }
-        else if (request.method == "getDoubleSpace"){
-            sendResponse({message: doubleSpace});
+        else if (request.method == "getWhichSeparator"){
+            sendResponse({message: whichSeparator});
         }
     });
 
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.executeScript(null, {
-            code: "segmentSection('body');"
+            code: "segmentSection();"
         });
     });
