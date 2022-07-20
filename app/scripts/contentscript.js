@@ -44,4 +44,8 @@ var segmentSection = function(){
     });
 };
 
-
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.method === 'executeSegmentSection') {
+        segmentSection();
+    }
+});

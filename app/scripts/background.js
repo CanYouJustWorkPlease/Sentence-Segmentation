@@ -1,5 +1,3 @@
-
-
 chrome.runtime.onInstalled.addListener(function() {
     console.log("Installed");
     chrome.storage.local.get('whichSeparator', resp => {
@@ -11,18 +9,18 @@ chrome.runtime.onInstalled.addListener(function() {
 
 });
 
-var whichSeparator = "";
+// var whichSeparator = "";
 
-var getWhichSeparator = function(){
-    chrome.storage.local.get(null, function(resp){
-        console.log(resp.whichSeparator);
-        whichSeparator = resp.whichSeparator;
-    });
-};
+// var getWhichSeparator = function(){
+//     chrome.storage.local.get(null, function(resp){
+//         console.log(resp.whichSeparator);
+//         whichSeparator = resp.whichSeparator;
+//     });
+// };
 
-setTimeout(function(){
-    getWhichSeparator();
-},500);
+// setTimeout(function(){
+//     getWhichSeparator();
+// },500);
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -32,15 +30,16 @@ chrome.runtime.onMessage.addListener(
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                 chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
             });
-            getWhichSeparator();
+            // getWhichSeparator();
         }
         else if (request.method == "getWhichSeparator"){
-            sendResponse({message: whichSeparator});
+            chrome.storage.local.get('whichSeparator', resp => {
+                sendResponse({message: resp.whichSeparator});
+            });
+            return true;
         }
     });
 
-    chrome.browserAction.onClicked.addListener(function(tab) {
-        chrome.tabs.executeScript(null, {
-            code: "segmentSection();"
-        });
-    });
+chrome.action.onClicked.addListener(function(tab) {
+    chrome.tabs.sendMessage(tab.id, {method: 'executeSegmentSection'});
+});
