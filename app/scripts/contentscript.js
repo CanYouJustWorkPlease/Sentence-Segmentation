@@ -1,6 +1,6 @@
 'use strict';
-var elem;
-var whichSeparator;
+let elem;
+let whichSeparator;
 $(document).ready(function() {
     whichSeparator = 'newLine'; // default
 
@@ -9,38 +9,84 @@ $(document).ready(function() {
     });
 });
 
+// Refactoring for space insertion.
+function repeatSpace(n) {
+    return "&nbsp;".repeat(n);
+}
+
+// Added the 2 new features: paragraphTwoNewLines and paragraphTwoNewLinesAndSeparator.
+// Removed period for each line break and replaced multiple &nbsp; with
+// repeatSpace() .
 function generateLineBreak() {
     let lineBreak; 
     if (whichSeparator === 'newLine') {
-        lineBreak = ".<br/>";
+        lineBreak = "<br/>";
+    }   
+    else if (whichSeparator === 'paragraphTwoNewLines') {
+        lineBreak = "<br/><br/>";
     }
+    else if (whichSeparator === 'paragraphTwoNewLinesAndSeparator') {
+        lineBreak = "<br/>----------<br/>";
+    }   
     else if (whichSeparator === '2spaces') {
-        lineBreak = ".&nbsp;&nbsp;";
+        lineBreak = repeatSpace(2);
     }
     else if (whichSeparator === '3spaces') {
-        lineBreak = ".&nbsp;&nbsp;&nbsp;";
+        lineBreak = repeatSpace(3);
     }
     else if (whichSeparator === '4spaces') {
-        lineBreak = ".&nbsp;&nbsp;&nbsp;&nbsp;";
+        lineBreak = repeatSpace(4);
     }
     else if (whichSeparator === '5spaces') {
-        lineBreak = ".&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+        lineBreak = repeatSpace(5);
     }
     return lineBreak;
 }
 
-var segmentSection = function(){
+const segmentSection = function(){
     elem = "body";
     $(elem + " *").each(function(){
-        var v = $(this).html();
-        var regexForPeriod = /\.\s/g;       //regex to find period
-        var regexForQuestion = /\?\s/g;     //regex to find question mark
+        let v = $(this).html();
         const lineBreak = generateLineBreak();
-        var questionBreak = "?" + lineBreak.slice(1);
-        var separatorElem =  whichSeparator === 'newLine' ? "<span class='segmentSeparator'></span>" : "";
-        v = v.replace(regexForPeriod, (lineBreak + separatorElem));        //replacing period with period and newline
-        v = v.replace(regexForQuestion, (questionBreak + separatorElem));      //replacing questionmark with questionmark and newline
-        $(this).html(v);        //adding replaced content back to the DOM element
+        
+        // Turned whichSeparator value to lower case so it can detect if it
+        // is newLine, paragraphTwoNewLines or paragraphTwoNewLinesAndSeparator.
+        const separatorElem = whichSeparator.toLowerCase().includes("line") ? 
+                            "<span class='segmentSeparator'></span>" : "";
+        // This code applies for the 2 new features that I added.
+        if (whichSeparator === 'paragraphTwoNewLines' || whichSeparator === 'paragraphTwoNewLinesAndSeparator') {
+            
+            // Regex to find every third consecutive period, question mark or exclamation mark (in a random placement)
+            // followed by a space or a newline character.
+            //
+            // Example for "Two new lines" over here:
+            // https://regex101.com/r/TJPQH1/2
+            const regexForSymbolsAdvanced = /((?:[\.\?\!][^\.\?\!]*){2})([\.\?\!])[\s\n]/g;
+            
+            // Replacing every third consecutive period, question mark or exclamation mark (in a random placement)
+            // followed by a space or newline character with the character to be replaced and newlines and/or 
+            // separation line.
+            v = v.replace(regexForSymbolsAdvanced, ("$1$2" + lineBreak + separatorElem));
+            
+            // After enabling any of the two new features in the options, and clicking the icon for the second
+            // time, you'll notice the paragraph shrunk. Clicking the icon over and over it will turn the paragraph
+            // into a sentence, the same way "New line" feature does it.
+            // Only the very first paragraph won't be affected by this behaviour of paragraph shrinking.
+            
+        // This code applies to your original features.
+        } else {
+            
+            // Regex to find every period, question mark or exclamation mark followed
+            // by a space character.
+            const regexForSymbolsSimple = /([\.\?\!])\s/g;
+            
+            // Replacing every period, question mark or exclamation mark followed by a space character
+            // with the character to be replaced and space(or multiple spaces) or newline.
+            v = v.replace(regexForSymbolsSimple, ("$1" + lineBreak + separatorElem)); 
+            
+        }
+        // Adding replaced content back to the DOM element.
+        $(this).html(v);                
     });
 };
 
